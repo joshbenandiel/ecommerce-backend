@@ -8,6 +8,7 @@ const connect = require('./connection')
 // const authRoutes = require('./routes/auth')
 const productRoutes = require('./routes/products')
 const userRoutes = require('./routes/userRoute')
+const orderRoutes = require('./routes/orderRoute')
 const cookieParser = require('cookie-parser')
 
 
@@ -28,6 +29,7 @@ app.use(cookieParser())
 //Products
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/order', orderRoutes)
 
 
 

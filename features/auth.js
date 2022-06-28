@@ -12,15 +12,16 @@ exports.isAuthenticatedUser = async(req,res, next) => {
     // console.log(token)
     const decodedData = jwt.verify(token, process.env.JWT_SECRET)
     req.user = await User.findById(decodedData.id)
-
     next()
   } catch(err){
     console.log(err)
   }
 }
 
-exports.authorizedRole = (...roles) => {
+exports.authorizedRole = (...roles) => { 
   return (req,res,next) => {
+    if(!req.user) 
+      return res.status(401).json({message: 'You need to login'})
     if(!roles.includes(req.user.role)){
       return res.status(401).send({message: `Role ${req.user.role} is not allowed`})
     } else {

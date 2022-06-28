@@ -150,3 +150,150 @@ exports.resetPassword = async(req,res) => {
     console.log(error)
   }
 }
+
+
+exports.getUserDetail = async(req,res) => {
+  try {
+    const user = await User.findById(req.user.id)
+    res.status(200).json({
+      success: true,
+      user,
+    });
+
+
+  } catch(error){
+    console.log(error)
+  }
+}
+
+exports.updateUserPassword = async(req,res) => {
+  try {
+    const user = await User.findById(req.user.id)
+
+    const validPassword = await bcrypt.compare(
+      req.body.oldPassword, user.password
+    );
+  
+    if(!validPassword)
+      return res.status(401).send({message: 'Password Incorrect'});
+
+    if(req.body.newPassword !== req.body.confirmPassword){
+      return res.status(401).send({message: 'Password does not match'});
+    }
+
+    user.password = req.body.newPassword;
+    await user.save()
+
+    sendToken(user,200,res)
+  } catch(err){
+    console.log(err)
+  }
+}
+
+exports.updateUserProfile = async(req,res) => {
+  try {
+    const newUserData = {
+      name: req.body.name,
+      email: req.body.email
+    }
+
+    if(!newUserData.email)
+      return res.status(401).send({message: 'Please enter your email'});
+    if(!newUserData.name)
+    return res.status(401).send({message: 'Please enter your name'});
+
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false
+    })
+
+    res.status(200).json({
+      success: true,
+    })
+
+  }catch(error){
+    console.log(error)
+  }
+}
+
+exports.getAllUser = async(req,res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({
+      success: true,
+      users
+    })
+
+  }catch(err){
+    console.log(err)
+  }
+}
+
+
+exports.getUser = async(req,res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if(!user)
+      return res.status(401).json({message: `User does not exist with Id: ${req.params.id}`})
+
+    
+    res.status(200).json({
+      success: true,
+      user
+    })
+
+  }catch(err){
+    console.log(err)
+  }
+}
+
+exports.updateUserRole = async(req,res) => {
+  try {
+    const newUserData = {
+      name: req.body.name,
+      email: req.body.email,
+      role: req.body.role
+    }
+
+    if(!newUserData.email)
+      return res.status(401).send({message: 'Please enter your email'});
+    if(!newUserData.name)
+      return res.status(401).send({message: 'Please enter your name'});
+
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false
+    })
+
+    res.status(200).json({
+      success: true,
+    })
+
+  }catch(error){
+    console.log(error)
+  }
+}
+
+exports.deleteUser = async(req,res) => {
+  try {
+
+    const user = await User.findById(req.params.id)
+
+    if(!user){
+      return res.status(401).send({message: `User does not exist with Id: ${req.params.id}`});
+    }
+
+    await user.remove()
+
+    res.status(200).json({
+      success: true,
+      message: 'User Successfully Deleted'
+    })
+
+  }catch(error){
+    console.log(error)
+  }
+}
